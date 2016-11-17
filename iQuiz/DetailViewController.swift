@@ -13,6 +13,8 @@ class DetailViewController: UIViewController {
     @IBOutlet weak var detailDescriptionLabel: UILabel!
     @IBOutlet var answerGroup: [UIButton]!
     @IBOutlet weak var button: UIButton!
+    @IBOutlet weak var submitButton: UIBarButtonItem!
+    @IBOutlet weak var submit: UIButton!
     
     let defaults = UserDefaults.standard
     
@@ -88,7 +90,7 @@ class DetailViewController: UIViewController {
         // Update the user interface for the detail item.
         //if self.detailItem != nil {
         if counts < questionItem.count {
-            NSLog("\(counts)")
+            NSLog("\(questionItem.count)")
             if let label = self.detailDescriptionLabel {
                 label.text = questionItem[counts]?.description
                 for i in 0...3 {
@@ -98,13 +100,27 @@ class DetailViewController: UIViewController {
             }
         } else {
             NSLog("no")
-            self.segueToResults()
+            //self.segueToResults()
+            
+            switch rights {
+            case 0: self.detailDescriptionLabel.text = "AWW :( \(rights) out of \(counts)"
+            case 1: self.detailDescriptionLabel.text = "Need more work! \(rights) out of \(counts)"
+            case 2: self.detailDescriptionLabel.text = "Getting there! \(rights) out of \(counts)"
+            case 3: self.detailDescriptionLabel.text = "Almost! \(rights) out of \(counts)"
+            default: self.detailDescriptionLabel.text = "Awesome! \(rights) out of \(counts)"
+                
+            }
+            for i in 0...3 {
+                self.answerGroup[i].isHidden = true
+            }
+            self.submitButton.title = nil
+            self.submitButton.isEnabled = false
         }
     }
     
-    func segueToResults() {
-        performSegue(withIdentifier: "showResults", sender: nil)
-    }
+    /*func segueToResults() {
+        performSegue(withIdentifier: "showResults", sender: self)
+    }*/
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
@@ -145,7 +161,7 @@ class DetailViewController: UIViewController {
     controller.questionItem = question
     controller.answerItem = answer
     controller.navigationItem.leftBarButtonItem = self.splitViewController?.displayModeButtonItem
-    //controller.navigationItem.leftItemsSupplementBackButton = false
+    controller.navigationItem.leftItemsSupplementBackButton = false
     }
     }
 }
