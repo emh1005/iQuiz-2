@@ -10,6 +10,7 @@ import UIKit
 
 class MasterViewController: UITableViewController {
 
+    @IBOutlet weak var tableview: UITableView!
     var detailViewController: DetailViewController? = nil
     var objects = [String]()
     var x: Int = 0
@@ -72,6 +73,12 @@ class MasterViewController: UITableViewController {
         let test = UserDefaults.standard.bool(forKey: "testBool")
         return test
     }
+
+    var testTwo: Bool = false
+    private static func getBoolTwo() -> Bool {
+        let test = UserDefaults.standard.bool(forKey: "testBool2")
+        return test
+    }
     
     var subjectTitle: [String] = ["Mathematics", "Marvel Super Heroes", "Science"]
     var subjectDesc: [String] = ["Questions about math!", "Questions about superheroes!", "Questions about science!"]
@@ -83,18 +90,24 @@ class MasterViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
+        //self.tableView.tableFooterView = UIView()
+        self.tableview.delegate = self
+        self.tableview.dataSource = self
+        self.tableview.reloadData()
         
         self.test = MasterViewController.getBool()
         if test == false {
+            NSLog("test")
             self.jsonGet()
         }
+        
         var counts = defaults.integer(forKey: "count")
         counts = 0
         defaults.set(counts, forKey: "count")
         
-        /*var answerGiven = defaults.integer(forKey: "answerGiven")
-        answerGiven = 0
-        defaults.set(answer, forKey: "answerGiven")*/
+        var answerGiven = defaults.integer(forKey: "answerGiven")
+        answerGiven = 5
+        defaults.set(answer, forKey: "answerGiven")
         
         var rights = defaults.integer(forKey: "right")
         rights = 0
@@ -105,20 +118,13 @@ class MasterViewController: UITableViewController {
             self.detailViewController = (controllers[controllers.count-1] as! UINavigationController).topViewController as? DetailViewController
         }
         
-        for _ in 0...subjectTitle.count - 1 {
+        /*for _ in 0...subjectTitle.count - 1 {
             self.insertNewObject()
             if self.x < subjectTitle.count {
                 self.x += 1
             }
-        }
-        //self.tableView.tableFooterView = UIView()
-        //self.tableView.reloadData()
-    }
-
-    override func viewWillAppear(_ animated: Bool) {
-        //self.clearsSelectionOnViewWillAppear = self.splitViewController!.isCollapsed
-        super.viewWillAppear(animated)
-        self.tableView.reloadData()
+        }*/
+     //   self.tableview.reloadData()
     }
 
     override func didReceiveMemoryWarning() {
@@ -126,11 +132,11 @@ class MasterViewController: UITableViewController {
         // Dispose of any resources that can be recreated.
     }
 
-    func insertNewObject() {
+    /*func insertNewObject() {
         objects.append(subjectTitle[x])
         let indexPath = IndexPath(row: 0, section: 0)
         self.tableView.insertRows(at: [indexPath], with: .automatic)
-    }
+    }*/
     
     @IBAction func refreshPressed(_ sender: Any) {
         self.jsonGet()
@@ -142,6 +148,7 @@ class MasterViewController: UITableViewController {
     
     
     func jsonGet() {
+        NSLog("ha")
         var test = self.defaults.bool(forKey: "testBool")
         test = true
         self.defaults.set(test, forKey: "testBool")
@@ -181,7 +188,7 @@ class MasterViewController: UITableViewController {
                         }
                         descs!.append(desc!)
                         self.defaults.set(descs, forKey: "descs")
-                        NSLog("\(desc)")
+                        //NSLog("\(desc)")
                         //self.subjectDescs.append(desc!)
                         
                         var texts: [String] = [String]()
@@ -236,19 +243,19 @@ class MasterViewController: UITableViewController {
                         }
                         answerMass!.append(answerGroup)
                         self.defaults.set(answerMass, forKey: "answers")
-                        }
                     //self.tableview.reloadData()
+                    }
+                    
                 } catch {
                         print("Error with Json: \(error)")
                     }
-                    
                 }
             }
-        //self.tableview.reloadData()
+        self.tableview.reloadData()
         task.resume()
     }
     
-    
+
     // MARK: - Segues
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -274,6 +281,14 @@ class MasterViewController: UITableViewController {
         }
     }
 
+    
+    override func viewWillAppear(_ animated: Bool) {
+        //self.clearsSelectionOnViewWillAppear = self.splitViewController!.isCollapsed
+        super.viewWillAppear(animated)
+        //self.viewDidLoad()
+        self.tableview.reloadData()
+    }
+    
     // MARK: - Table View
 
     override func numberOfSections(in tableView: UITableView) -> Int {
@@ -291,12 +306,11 @@ class MasterViewController: UITableViewController {
         let i = indexPath.row
         self.titles = MasterViewController.getTitle()
         self.descs = MasterViewController.getDesc()
-
-        NSLog("\(descs)")
+        
         cell.titleLabel.text = titles[i]
         cell.descLabel.text = descs[i]
-
-
+        
+            
        // let object = objects[indexPath.row]
         //cell.textLabel!.text = object.description
         return cell

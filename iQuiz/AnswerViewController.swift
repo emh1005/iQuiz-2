@@ -77,11 +77,9 @@ class AnswerViewController: UIViewController {
         // Update the user interface for the detail item.
         //if self.detailItem != nil {
             if let label = self.questionLabel {
-                NSLog("\(questionItem) \(questionItem[counts])")
                 label.text = questionItem[counts]?.description
             }
             if let label = self.answerLabel {
-                //NSLog("\(correctItem) \(correctItem[counts])")
                 let i: Int = Int((correctItem[counts]?.description)!)! - 1
                 label.text = answerItem[counts][i]?.description
             }
