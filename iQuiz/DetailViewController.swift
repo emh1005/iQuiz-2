@@ -14,65 +14,64 @@ class DetailViewController: UIViewController {
     @IBOutlet var answerGroup: [UIButton]!
     @IBOutlet weak var button: UIButton!
     @IBOutlet weak var submitButton: UIBarButtonItem!
-    @IBOutlet weak var submit: UIButton!
     
     let defaults = UserDefaults.standard
     
     private var counts = DetailViewController.getCount()
-    
     private static func getCount() -> Int {
         let counts = UserDefaults.standard.integer(forKey: "count")
         return counts as Int
     }
     
-    private var answer = DetailViewController.getAnswer()
-    
-    private static func getAnswer() -> Int {
-        let answer = UserDefaults.standard.integer(forKey: "answer")
+    private var answerGiven = DetailViewController.getAnswerGiven()
+    private static func getAnswerGiven() -> Int {
+        let answer = UserDefaults.standard.integer(forKey: "answerGiven")
         return answer as Int
     }
     
     private var rights = DetailViewController.getRights()
-    
     private static func getRights() -> Int {
         let rights = UserDefaults.standard.integer(forKey: "right")
         return rights as Int
     }
-        
-        
-
-            //nextButton[1].isEnabled = false
-            //nextButton[1].isHidden = true
-            /*self.questionText.text = commonViewController.questions[counts]
-            for i in 0...3 {
-                self.answersGroup[i].setTitle(commonViewController.answers[counts][i], for: .normal)
-            }
+    
+    var questionsText = [[String]]()
+    private static func getQuestion() -> [[String]] {
+        let text = UserDefaults.standard.array(forKey: "texts")
+        if text == nil {
+            return Array()
         } else {
-            switch rights {
-            case 0: questionText.text = "AWW :( \(rights) out of \(commonViewController.questions.count)"
-            case 1: self.questionText.text = "Need more work! \(rights) out of \(commonViewController.questions.count)"
-            case 2: questionText.text = "Getting there! \(rights) out of \(commonViewController.questions.count)"
-            case 3: questionText.text = "Almost! \(rights) out of \(commonViewController.questions.count)"
-            default: questionText.text = "Awesome! \(rights) out of \(commonViewController.questions.count)"
-                
-            }
-            for i in 0...3 {
-                //answersGroup[i].isEnabled = false
-                answersGroup[i].isHidden = true
-            }
-            nextButton[0].isEnabled = false
-            nextButton[0].isHidden = true
-            nextButton[1].isEnabled = true
-            nextButton[1].isHidden = false
+            return text! as! [[String]]
         }
-        */
+    }
+    
+    var answer = [String]()
+    private static func getAnswer() -> [String] {
+        let answer = UserDefaults.standard.array(forKey: "answer")
+        if answer == nil {
+            return Array()
+        } else {
+            return answer! as! [String]
+        }
+    }
+    
+    var answers = [[[String]]]()
+    private static func getAnswers() -> [[[String]]] {
+        let answers = UserDefaults.standard.array(forKey: "answers")
+        if answers == nil {
+            return Array()
+        } else {
+            return answers! as! [[[String]]]
+        }
+    }
+    
     
     @IBAction func answerPressed(_ sender: UIButton) {
         for i in 0...3 {
             if sender == answerGroup[i] {
                 sender.isEnabled = true
-                answer = i + 1
-                defaults.set(answer, forKey: "answer")
+                answerGiven = i + 1
+                defaults.set(answerGiven, forKey: "answerGiven")
             } else {
                 answerGroup[i].isEnabled = false
             }
@@ -83,31 +82,27 @@ class DetailViewController: UIViewController {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         self.configureView()
-        self.button.isHidden = true
     }
     
     func configureView() {
         // Update the user interface for the detail item.
-        //if self.detailItem != nil {
+        if self.detailItem != nil {
+            NSLog("\(counts)")
         if counts < questionItem.count {
-            NSLog("\(questionItem.count)")
             if let label = self.detailDescriptionLabel {
                 label.text = questionItem[counts]?.description
                 for i in 0...3 {
                     self.answerGroup[i].setTitle(answerItem[counts][i], for: .normal)
                 }
-                // }
             }
         } else {
-            NSLog("no")
-            //self.segueToResults()
-            
+            //NSLog("no")
             switch rights {
-            case 0: self.detailDescriptionLabel.text = "AWW :( \(rights) out of \(counts)"
-            case 1: self.detailDescriptionLabel.text = "Need more work! \(rights) out of \(counts)"
-            case 2: self.detailDescriptionLabel.text = "Getting there! \(rights) out of \(counts)"
-            case 3: self.detailDescriptionLabel.text = "Almost! \(rights) out of \(counts)"
-            default: self.detailDescriptionLabel.text = "Awesome! \(rights) out of \(counts)"
+                case 0: self.detailDescriptionLabel.text = "AWW :( \(rights) out of \(counts)"
+                case 1: self.detailDescriptionLabel.text = "Need more work! \(rights) out of \(counts)"
+                case 2: self.detailDescriptionLabel.text = "Getting there! \(rights) out of \(counts)"
+                case 3: self.detailDescriptionLabel.text = "Almost! \(rights) out of \(counts)"
+                default: self.detailDescriptionLabel.text = "Awesome! \(rights) out of \(counts)"
                 
             }
             for i in 0...3 {
@@ -115,6 +110,7 @@ class DetailViewController: UIViewController {
             }
             self.submitButton.title = nil
             self.submitButton.isEnabled = false
+        }
         }
     }
     
@@ -128,12 +124,12 @@ class DetailViewController: UIViewController {
     }
 
     var detailItem: String?
-        /*{
+        {
         didSet {
             // Update the view.
-            self.configureView()
+            //self.configureView()
         }
-    }*/
+    }
     
     var questionItem: [String?] = []
         /*{
@@ -144,6 +140,8 @@ class DetailViewController: UIViewController {
     }*/
     
     var answerItem: Array<Array<String?>> = [[]]
+    
+    var correctItem: [String?] = []
         /*{
         didSet {
             // Update the view.
@@ -154,15 +152,18 @@ class DetailViewController: UIViewController {
         if segue.identifier == "showAnswer" {
     //if let indexPath = self.tableView.indexPathForSelectedRow {
     //let object = subjectDesc[indexPath.row]
-    let question = questionItem
-    let answer = answerItem
-    let controller = (segue.destination) as! AnswerViewController
-    //controller.detailItem = object
-    controller.questionItem = question
-    controller.answerItem = answer
-    controller.navigationItem.leftBarButtonItem = self.splitViewController?.displayModeButtonItem
-    controller.navigationItem.leftItemsSupplementBackButton = false
-    }
+            let question = questionItem
+            let answer = answerItem
+            let object = detailItem
+            let correct = correctItem
+            let controller = (segue.destination) as! AnswerViewController
+            controller.detailItem = object
+            controller.questionItem = question
+            controller.answerItem = answer
+            controller.correctItem = correct
+            controller.navigationItem.leftBarButtonItem = self.splitViewController?.displayModeButtonItem
+            controller.navigationItem.leftItemsSupplementBackButton = false
+        }
     }
 }
 

@@ -24,10 +24,10 @@ class AnswerViewController: UIViewController {
         return counts as Int
     }
     
-    private var answer = AnswerViewController.getAnswer()
+    private var answerGiven = AnswerViewController.getAnswerGiven()
     
-    private static func getAnswer() -> Int {
-        let answer = UserDefaults.standard.integer(forKey: "answer")
+    private static func getAnswerGiven() -> Int {
+        let answer = UserDefaults.standard.integer(forKey: "answerGiven")
        // NSLog ("a\(answer)")
         return answer as Int
     }
@@ -39,15 +39,50 @@ class AnswerViewController: UIViewController {
         //NSLog ("right\(rights)")
         return rights as Int
     }
+    
+    var questionsText = [[String]]()
+    private static func getQuestion() -> [[String]] {
+        let text = UserDefaults.standard.array(forKey: "texts")
+        if text == nil {
+            return Array()
+        } else {
+            return text! as! [[String]]
+        }
+    }
+    
+    var answer = [String]()
+    private static func getAnswer() -> [String] {
+        let answer = UserDefaults.standard.array(forKey: "answer")
+        if answer == nil {
+            return Array()
+        } else {
+            return answer! as! [String]
+        }
+    }
+    
+    var answers = [[[String]]]()
+    private static func getAnswers() -> [[[String]]] {
+        let answers = UserDefaults.standard.array(forKey: "answers")
+        if answers == nil {
+            return Array()
+        } else {
+            return answers! as! [[[String]]]
+        }
+    }
+
+    
+    
 
     func configureView() {
         // Update the user interface for the detail item.
         //if self.detailItem != nil {
             if let label = self.questionLabel {
+                NSLog("\(questionItem) \(questionItem[counts])")
                 label.text = questionItem[counts]?.description
             }
             if let label = self.answerLabel {
-                let i: Int = Int(answerItem[counts][4]!)! - 1
+                //NSLog("\(correctItem) \(correctItem[counts])")
+                let i: Int = Int((correctItem[counts]?.description)!)! - 1
                 label.text = answerItem[counts][i]?.description
             }
         //}
@@ -65,7 +100,7 @@ class AnswerViewController: UIViewController {
         
        /* self.questionText.text = commonViewController.questions[counts]
         self.answerText.text = commonViewController.answers[counts][answer - 1]*/
-        if String(answer) == answerItem[counts][4] {
+        if String(answerGiven) == correctItem[counts] {
             self.correct.text = "RIGHT!!!!"
             self.correct.textColor = UIColor.green
             rights += 1
@@ -84,7 +119,7 @@ class AnswerViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
     
-
+/*
     var detailItem: String? {
         didSet {
             // Update the view.
@@ -104,7 +139,20 @@ class AnswerViewController: UIViewController {
             // Update the view.
             self.configureView()
         }
+     
+    }*/
+    
+    var detailItem: String?
+        {
+        didSet {
+        }
     }
+    
+    var questionItem: [String?] = []
+    
+    var answerItem: Array<Array<String?>> = [[]]
+    
+    var correctItem: [String?] = []
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "showQuestion" {
@@ -112,10 +160,13 @@ class AnswerViewController: UIViewController {
             //let object = subjectDesc[indexPath.row]
             let question = questionItem
             let answer = answerItem
+            let object = detailItem
+            let correct = correctItem
             let controller = (segue.destination as! UINavigationController).topViewController as! DetailViewController
-            //controller.detailItem = object
+            controller.detailItem = object
             controller.questionItem = question
             controller.answerItem = answer
+            controller.correctItem = correct
             controller.navigationItem.leftBarButtonItem = self.splitViewController?.displayModeButtonItem
             controller.navigationItem.leftItemsSupplementBackButton = false
         }
